@@ -22,6 +22,7 @@
   "homepage": "https://github.com/Robynemiliek/forelesning3_1#readme",
   "type": "module",
   "dependencies": {
+    "ol": "^10.7.0",
     "react": "^19.2.4",
     "react-dom": "^19.2.4"
   },

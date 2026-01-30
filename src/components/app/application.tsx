@@ -28,7 +28,14 @@ const fylkelayer = new VectorLayer({
   }),
 });
 
-const layers = [new TileLayer({ source: new OSM() }), fylkelayer];
+const kommuneLayer = new VectorLayer({
+  source: new VectorSource({
+    url: "/forelesning3_1/geojson/kommuner.geojson",
+    format: new GeoJSON(),
+  }),
+});
+
+const layers = [new TileLayer({ source: new OSM() }), fylkelayer, kommuneLayer];
 
 const map = new Map({
   layers,

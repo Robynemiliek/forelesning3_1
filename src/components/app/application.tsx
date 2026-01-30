@@ -9,6 +9,7 @@ import "./application.css";
 import VectorLayer from "ol/layer/Vector.js";
 import VectorSource from "ol/source/Vector.js";
 import { GeoJSON } from "ol/format.js";
+import { Fill, Stroke, Style, Text } from "ol/style.js";
 
 useGeographic();
 
@@ -19,6 +20,12 @@ const fylkeSource = new VectorSource({
 
 const fylkelayer = new VectorLayer({
   source: fylkeSource,
+  style: new Style({
+    stroke: new Stroke({ color: "blue", width: 2 }),
+    fill: new Fill({
+      color: "#ff000020",
+    }),
+  }),
 });
 
 const layers = [new TileLayer({ source: new OSM() }), fylkelayer];
@@ -38,6 +45,19 @@ export function Application() {
       fylkeUnderPointer.length > 0 ? fylkeUnderPointer[0] : undefined,
     );
   }
+
+  useEffect(() => {
+    activeFylke?.setStyle(
+      (feature) =>
+        new Style({
+          stroke: new Stroke({ color: "blue", width: 4 }),
+          text: new Text({
+            text: feature.getProperties()["fylkesnavn"],
+          }),
+        }),
+    );
+    return () => activeFylke?.setStyle(undefined);
+  }, [activeFylke]);
 
   useEffect(() => {
     map.setTarget(mapRef.current!);

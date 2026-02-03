@@ -9,25 +9,15 @@ import "./application.css";
 import VectorLayer from "ol/layer/Vector.js";
 import VectorSource from "ol/source/Vector.js";
 import { GeoJSON } from "ol/format.js";
-import { Fill, Stroke, Style, Text } from "ol/style.js";
+import { Stroke, Style, Text } from "ol/style.js";
 import { getCenter } from "ol/extent.js";
+import { Layer } from "ol/layer.js";
+import {
+  FylkesLayerCheckbox,
+  fylkeSource,
+} from "../layer/fylkesLayerCheckbox.js";
 
 useGeographic();
-
-const fylkeSource = new VectorSource({
-  url: "/forelesning3_1/geojson/fylker.geojson",
-  format: new GeoJSON(),
-});
-
-const fylkelayer = new VectorLayer({
-  source: fylkeSource,
-  style: new Style({
-    stroke: new Stroke({ color: "blue", width: 2 }),
-    fill: new Fill({
-      color: "#ff000020",
-    }),
-  }),
-});
 
 const kommuneSource = new VectorSource({
   url: "/forelesning3_1/geojson/kommuner.geojson",
@@ -37,7 +27,6 @@ const kommuneSource = new VectorSource({
 const kommuneLayer = new VectorLayer({ source: kommuneSource });
 
 const view = new View({ zoom: 9, center: [10, 59.5] });
-
 const map = new Map({ view });
 
 export function Application() {
@@ -45,14 +34,10 @@ export function Application() {
   const [activeFylke, setActiveFylke] = useState<Feature>();
   const [alleKommuner, setAlleKommuner] = useState<Feature[]>([]);
 
-  const [showFylkeLayer, setShowFylkeLayer] = useState(true);
+  const [fylkesLayers, setFylkesLayers] = useState<Layer[]>([]);
   const layers = useMemo(
-    () => [
-      new TileLayer({ source: new OSM() }),
-      ...(showFylkeLayer ? [fylkelayer] : []),
-      kommuneLayer,
-    ],
-    [showFylkeLayer],
+    () => [new TileLayer({ source: new OSM() }), ...fylkesLayers, kommuneLayer],
+    [fylkesLayers],
   );
   useEffect(() => map.setLayers(layers), [layers]);
 
@@ -108,9 +93,7 @@ export function Application() {
             : "Kart over administrative områder i Norge"}
         </h1>
         <div>
-          <button onClick={() => setShowFylkeLayer((b) => !b)} tabIndex={-1}>
-            <input type={"checkbox"} checked={showFylkeLayer} /> Vis fylker
-          </button>
+          <FylkesLayerCheckbox setFylkesLayers={setFylkesLayers} />
         </div>
       </header>
       <main>
@@ -124,7 +107,7 @@ export function Application() {
               .sort((a, b) => a["kommunenavn"].localeCompare(b["kommunenavn"]))
               .map((k) => (
                 <li>
-                  <a href={"#"} onClick={(e) => handleClick(k)}>
+                  <a href={"#"} onClick={() => handleClick(k)}>
                     {" "}
                     {k["kommunenavn"]}
                   </a>
